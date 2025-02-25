@@ -46,12 +46,22 @@ namespace GetThingsDone.Controllers {
         
         private string GenerateJwtToken(UserModel user) {
 
+            if(user.Email == null) {
+                throw new Exception("Not found the user email");
+            }
+
             var claims = new [] {
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+    
+            var jwtKey = _configuration["Jwt:Key"];
+            
+            if(jwtKey == null) {
+                throw new Exception("Please admin, check if the JWT key is configurated in the settings file.");
+            }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
