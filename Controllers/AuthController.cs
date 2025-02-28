@@ -19,7 +19,7 @@ namespace GetThingsDone.Controllers {
             _userManager = userManager;
             _configuration = configuration;
         }
-
+    
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] LoginRecord request) {
             var user = await _userManager.FindByEmailAsync(request.email);
@@ -43,11 +43,25 @@ namespace GetThingsDone.Controllers {
             return BadRequest(result.Errors);
         
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordRecord request) {
+
+            var user = await _userManager.FindByEmailAsync(request.email);
+            if(user == null) {
+                return NotFound("Invalid e-mail account");
+            }
+
+            await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            return Ok();
+
+        }
         
         private string GenerateJwtToken(UserModel user) {
 
             if(user.Email == null) {
-                throw new Exception("Not found the user email");
+                throw new Exception("Not found the user e-mail");
             }
 
             var claims = new [] {

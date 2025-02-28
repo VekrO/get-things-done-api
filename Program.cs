@@ -12,10 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddCors(o => {
+    o.AddPolicy("GetThingsDonePolicy", p => p.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod());
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<DatabaseContext>(o => {
-    o.UseInMemoryDatabase("InMemoryDatabase");
+    o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 // Set the user model in identity.
@@ -53,6 +57,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+app.UseCors("GetThingsDonePolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
