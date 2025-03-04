@@ -4,4 +4,6 @@ namespace GetThingsDone.Models {
 
     public class UserModel : IdentityUser {}
 
+    
+
 }

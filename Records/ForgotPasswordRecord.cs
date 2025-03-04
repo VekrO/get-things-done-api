@@ -1,0 +1,1 @@
+public record ForgotPasswordRecord (string email);

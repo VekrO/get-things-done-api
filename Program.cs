@@ -12,14 +12,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddCors(o => {
+    o.AddPolicy("GetThingsDonePolicy", p => p.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod());
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<DatabaseContext>(o => {
-    o.UseInMemoryDatabase("InMemoryDatabase");
+    o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 // Set the user model in identity.
-builder.Services.AddIdentity<UserModel, IdentityRole>()
+builder.Services.AddIdentity<UserModel, IdentityRole>(o => {
+    o.User.AllowedUserNameCharacters = null;
+})
     .AddEntityFrameworkStores<DatabaseContext>()
     .AddDefaultTokenProviders();
     
@@ -42,6 +48,11 @@ builder.Services.AddAuthentication(o => {
 
     };
      
+}).AddGoogle(o => {
+    
+    o.ClientId = builder.Configuration["Google:ClientId"];
+    o.ClientSecret = builder.Configuration["Google:SecretKey"];
+    
 });
 
 builder.Services.AddAuthorization();
@@ -53,6 +64,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+app.UseCors("GetThingsDonePolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();

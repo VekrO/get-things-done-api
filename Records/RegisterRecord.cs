@@ -1,1 +1,1 @@
-public record RegisterRecord(string email, string password);
+public record RegisterRecord(string username, string email, string password);
